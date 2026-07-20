@@ -47,7 +47,9 @@ export function Hero() {
             </span>
             <p className="font-bold text-[#1C0F33] text-sm mt-1">Jaleco branco M</p>
             <p className="text-xs text-[#6B5B8C] mt-1">Usado por 1 semestre</p>
-            <p className="mt-3 text-sm font-semibold text-[#4C1D95]">R$ 20,00</p>
+            <span className="mt-3 inline-block text-xs font-semibold text-[#1C0F33] bg-[#C6F135] px-2 py-0.5 rounded-full">
+              Doação
+            </span>
           </div>
  
           <div className="absolute top-2 left-64 w-52 rotate-[10deg] rounded-xl bg-white/95 shadow-2xl p-4">

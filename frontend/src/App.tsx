@@ -6,22 +6,29 @@ import { Vitrine } from "./components/Vitrine";
 import { Footer } from "./components/Footer";
 import { Anunciar } from "./pages/Anunciar";
 import { MeusAnuncios } from "./pages/MeusAnuncios";
+ 
 function App() {
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <Header />
-      <Routes>
-        <Route path="/" 
-        element={
-        <>  
-        <Hero />
-      <Stats />
-      <Vitrine />
-        </>
-        } />
-        <Route path="/anunciar" element={<Anunciar />} />
-        <Route path="/meus-anuncios" element={<MeusAnuncios />} />
-      </Routes>
+ 
+      <main className="flex-1">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <Hero />
+                <Stats />
+                <Vitrine />
+              </>
+            }
+          />
+          <Route path="/anunciar" element={<Anunciar />} />
+          <Route path="/meus-anuncios" element={<MeusAnuncios />} />
+        </Routes>
+      </main>
+ 
       <Footer />
     </div>
   );

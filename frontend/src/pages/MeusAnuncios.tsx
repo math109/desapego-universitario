@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+ 
 interface Anuncio {
   id: string;
   titulo: string;
@@ -8,55 +8,95 @@ interface Anuncio {
   preco: number | null;
   imagemUrl: string;
 }
-
+ 
+// TEMPORÁRIO: até termos login, usamos um ID fixo aqui também
 const usuarioId = "6bb7390b-33fd-46ff-83ac-747cbc9b0728";
-
+ 
+// em produção, defina VITE_API_URL no .env (ex: VITE_API_URL=https://sua-api.onrender.com)
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3333";
+ 
 export function MeusAnuncios() {
   const [anuncios, setAnuncios] = useState<Anuncio[]>([]);
   const [carregando, setCarregando] = useState(true);
-
+  const [erro, setErro] = useState(false);
+  const [excluindoId, setExcluindoId] = useState<string | null>(null);
+ 
   useEffect(() => {
-    fetch(`http://localhost:3333/anuncios/usuario/${usuarioId}`)
-      .then((res) => res.json())
+    fetch(`${API_URL}/anuncios/usuario/${usuarioId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        return res.json();
+      })
       .then((data) => setAnuncios(data))
+      .catch(() => setErro(true))
       .finally(() => setCarregando(false));
   }, []);
-
+ 
   async function handleDelete(id: string) {
-    await fetch(`http://localhost:3333/anuncios/${id}`, { method: "DELETE" });
-    setAnuncios(anuncios.filter((a) => a.id !== id));
+    setExcluindoId(id);
+    try {
+      const res = await fetch(`${API_URL}/anuncios/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      setAnuncios((prev) => prev.filter((a) => a.id !== id));
+    } catch {
+      alert("Não foi possível excluir o anúncio. Tente novamente.");
+    } finally {
+      setExcluindoId(null);
+    }
   }
-
+ 
   return (
     <section className="max-w-4xl mx-auto py-12 px-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Meus anúncios</h1>
-
+      <span className="font-mono text-xs uppercase tracking-widest text-[#4C1D95]">
+        Sua vitrine
+      </span>
+      <h1 className="text-2xl font-bold text-[#1C0F33] mt-1 mb-8">Meus anúncios</h1>
+ 
       {carregando ? (
-        <p className="text-gray-500">Carregando...</p>
+        <p className="text-[#6B5B8C]">Carregando...</p>
+      ) : erro ? (
+        <p className="text-[#993C1D]">
+          Não foi possível carregar seus anúncios agora. Tente novamente mais tarde.
+        </p>
       ) : anuncios.length === 0 ? (
-        <p className="text-gray-500">Você ainda não tem anúncios.</p>
+        <p className="text-[#6B5B8C]">Você ainda não tem anúncios.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {anuncios.map((anuncio) => (
-            <div key={anuncio.id} className="border rounded-lg overflow-hidden shadow-sm">
+            <div
+              key={anuncio.id}
+              className="border border-[#E5E0F0] rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow"
+            >
               <img
                 src={anuncio.imagemUrl}
                 alt={anuncio.titulo}
-                className="w-full h-40 object-cover bg-gray-100"
+                className="w-full h-40 object-cover bg-[#F1EEF8]"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.visibility = "hidden";
+                }}
               />
               <div className="p-4">
-                <span className="text-xs text-green-700 font-semibold">
+                <span className="text-xs text-[#4C1D95] font-semibold font-mono uppercase tracking-wide">
                   {anuncio.categoria}
                 </span>
-                <h3 className="font-bold text-gray-800">{anuncio.titulo}</h3>
-                <p className="mt-2 font-semibold">
-                  {anuncio.preco ? `R$ ${anuncio.preco.toFixed(2)}` : "Doação"}
-                </p>
+                <h3 className="font-bold text-[#1C0F33] mt-1">{anuncio.titulo}</h3>
+                <div className="mt-3">
+                  {anuncio.preco ? (
+                    <span className="font-semibold text-[#1C0F33]">
+                      R$ {anuncio.preco.toFixed(2)}
+                    </span>
+                  ) : (
+                    <span className="inline-block text-xs font-semibold text-[#1C0F33] bg-[#C6F135] px-2.5 py-1 rounded-full">
+                      Doação
+                    </span>
+                  )}
+                </div>
                 <button
                   onClick={() => handleDelete(anuncio.id)}
-                  className="mt-3 text-sm text-red-600 hover:underline"
+                  disabled={excluindoId === anuncio.id}
+                  className="mt-4 text-sm text-[#993C1D] hover:underline disabled:opacity-50 disabled:no-underline"
                 >
-                  Excluir
+                  {excluindoId === anuncio.id ? "Excluindo..." : "Excluir"}
                 </button>
               </div>
             </div>

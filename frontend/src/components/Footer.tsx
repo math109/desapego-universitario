@@ -9,16 +9,21 @@ export function Footer() {
  
       <div className="flex items-center justify-center gap-4 mb-3">
         <a
-          href="https://github.com/SEU-USUARIO/SEU-REPOSITORIO"
+          href="https://github.com/math109/desapego-universitario"
           target="_blank"
           rel="noopener noreferrer"
           className="text-[#A78BFA] text-sm hover:text-[#F7F5FB] transition-colors"
         >
-          Repositório
+          Repositório GitHub
         </a>
-        <span className="text-[#4C1D95]">·</span>
-        <a href="#como-funciona" className="text-[#A78BFA] text-sm hover:text-[#F7F5FB] transition-colors">
-          Como funciona
+        <span className="text-[#A78BFA] text-sm">·</span>
+        <a
+          href="https://www.unifor.br"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#A78BFA] text-sm hover:text-[#F7F5FB] transition-colors"
+        >
+          Site UNIFOR
         </a>
       </div>
  
