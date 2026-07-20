@@ -1,21 +1,17 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
   id        String    @id @default(uuid())
   nome      String
   email     String    @unique
-  senha     String    // Armazenaremos a senha com hash (Bcrypt)
-  anuncios  Anuncio[] // Relacionamento: Um usuário pode ter vários anúncios
+  senha     String    
+  anuncios  Anuncio[] 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -24,9 +20,9 @@ model Anuncio {
   id          String   @id @default(uuid())
   titulo      String
   descricao   String
-  categoria   String   // Ex: Livros, Engenharia, Computação
-  preco       Float?   // Opcional: Se for nulo ou zero, podemos tratar como "Doação" no frontend
-  imagemUrl   String   // URL da imagem simulada
+  categoria   String   
+  preco       Float?   
+  imagemUrl   String   
   usuarioId   String
   usuario     User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
