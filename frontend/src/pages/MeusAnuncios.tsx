@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
- 
+import { useAuth } from "../context/AuthContext";
+
+
+
+
 interface Anuncio {
   id: string;
   titulo: string;
@@ -20,22 +24,24 @@ export function MeusAnuncios() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(false);
   const [excluindoId, setExcluindoId] = useState<string | null>(null);
+  const { token } = useAuth();
  
   useEffect(() => {
-    fetch(`${API_URL}/anuncios/usuario/${usuarioId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        return res.json();
-      })
-      .then((data) => setAnuncios(data))
-      .catch(() => setErro(true))
-      .finally(() => setCarregando(false));
-  }, []);
+    fetch(`${API_URL}/anuncios/meus`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    .then((res) => res.json())
+    .then((data) => setAnuncios(data))
+    .finally(() => setCarregando(false));
+    }, [token]);
  
   async function handleDelete(id: string) {
     setExcluindoId(id);
     try {
-      const res = await fetch(`${API_URL}/anuncios/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_URL}/anuncios/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
       if (!res.ok) throw new Error(`Status ${res.status}`);
       setAnuncios((prev) => prev.filter((a) => a.id !== id));
     } catch {

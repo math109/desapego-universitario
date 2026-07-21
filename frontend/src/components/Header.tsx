@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
  
 const LINKS = [
   { href: "#como-funciona", label: "Como funciona" },
@@ -9,6 +10,8 @@ const LINKS = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuAberto, setMenuAberto] = useState(false);
+
+  const { usuario, logout } = useAuth();
  
   useEffect(() => {
     function onScroll() {
@@ -55,12 +58,15 @@ export function Header() {
         </nav>
  
         <div className="hidden md:flex items-center gap-4">
-          <a
-            href="/entrar"
-            className="text-sm text-[#F7F5FB] opacity-85 hover:opacity-100 transition-opacity"
-          >
-            Entrar
-          </a>
+          {usuario ? (
+        <button onClick={logout} className="text-sm text-[#F7F5FB] opacity-85 hover:opacity-100">
+          Sair
+        </button>
+        ) : (
+        <a href="/login" className="text-sm text-[#F7F5FB] opacity-85 hover:opacity-100">
+          Entrar
+        </a>
+        )}
           <a
             href="/anunciar"
             className="rounded-full bg-[#C6F135] px-5 py-2 text-sm font-semibold text-[#1C0F33] hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#C6F135]/30 transition-all duration-200"

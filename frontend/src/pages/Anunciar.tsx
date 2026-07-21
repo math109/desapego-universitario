@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
  
 const CATEGORIAS = ["Livros", "Engenharia", "Computação"];
- 
 // em produção, defina VITE_API_URL no .env (ex: VITE_API_URL=https://sua-api.onrender.com)
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3333";
  
@@ -21,6 +21,7 @@ export function Anunciar() {
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
   const [imagemQuebrada, setImagemQuebrada] = useState(false);
+  const { token } = useAuth();
  
   // TEMPORÁRIO: até termos login, usamos um ID fixo salvo aqui
   const usuarioId = "6bb7390b-33fd-46ff-83ac-747cbc9b0728";
@@ -43,12 +44,15 @@ export function Anunciar() {
  
     try {
       const res = await fetch(`${API_URL}/anuncios`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+          method: "POST",
+          headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          ...form,
-          preco: form.preco ? Number(form.preco) : null,
-          usuarioId,
+        ...form,
+        preco: form.preco ? Number(form.preco) : null,
+        // sem usuarioId — o backend descobre pelo token
         }),
       });
  

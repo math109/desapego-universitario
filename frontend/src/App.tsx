@@ -6,6 +6,9 @@ import { Vitrine } from "./components/Vitrine";
 import { Footer } from "./components/Footer";
 import { Anunciar } from "./pages/Anunciar";
 import { MeusAnuncios } from "./pages/MeusAnuncios";
+import { Login } from "./pages/Login";
+import { Cadastro } from "./pages/Cadastro";
+import { RotaProtegida } from "./components/RotaProtegida";
  
 function App() {
   return (
@@ -24,8 +27,12 @@ function App() {
               </>
             }
           />
-          <Route path="/anunciar" element={<Anunciar />} />
-          <Route path="/meus-anuncios" element={<MeusAnuncios />} />
+          <Route path="/anunciar" element={<RotaProtegida><Anunciar /></RotaProtegida>} />
+          <Route path="/meus-anuncios" element={<RotaProtegida><MeusAnuncios /></RotaProtegida>} />
+
+
+          <Route path="/login" element={<Login />} />
+          <Route path="/cadastro" element={<Cadastro />} />
         </Routes>
       </main>
  
