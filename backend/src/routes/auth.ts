@@ -2,17 +2,23 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
+import { loginSchema } from "../schemas";
 
 const router = Router();
 
 router.post("/login", async (req, res) => {
+  const resultado = loginSchema.safeParse(req.body);
+
+  if (!resultado.success) {
+    return res.status(400).json({
+      erro: "Dados inválidos",
+      detalhes: resultado.error.flatten().fieldErrors,
+    });
+  }
+
+  const { email, senha } = resultado.data;
+
   try {
-    const { email, senha } = req.body;
-
-    if (!email || !senha) {
-      return res.status(400).json({ erro: "Email e senha são obrigatórios." });
-    }
-
     const usuario = await prisma.user.findUnique({ where: { email } });
 
     if (!usuario) {
@@ -25,11 +31,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ erro: "Email ou senha inválidos." });
     }
 
-    const token = jwt.sign(
-      { usuarioId: usuario.id },
-      process.env.JWT_SECRET!,
-      { expiresIn: "7d" }
-    );
+    const token = jwt.sign({ usuarioId: usuario.id }, process.env.JWT_SECRET!, { expiresIn: "7d" });
 
     return res.json({ token, usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email } });
   } catch (error) {

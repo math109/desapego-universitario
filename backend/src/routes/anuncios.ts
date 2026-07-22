@@ -1,18 +1,24 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { authMiddleware, AuthRequest } from "../middlewares/auth";
+import { criarAnuncioSchema } from "../schemas";
 
 const router = Router();
 
 // Criar anúncio (agora exige login)
 router.post("/", authMiddleware, async (req: AuthRequest, res) => {
+  const resultado = criarAnuncioSchema.safeParse(req.body);
+
+  if (!resultado.success) {
+    return res.status(400).json({
+      erro: "Dados inválidos",
+      detalhes: resultado.error.flatten().fieldErrors,
+    });
+  }
+
+  const { titulo, descricao, categoria, preco, imagemUrl } = resultado.data;
+
   try {
-    const { titulo, descricao, categoria, preco, imagemUrl } = req.body;
-
-    if (!titulo || !descricao || !categoria || !imagemUrl) {
-      return res.status(400).json({ erro: "Campos obrigatórios faltando." });
-    }
-
     const anuncio = await prisma.anuncio.create({
       data: { titulo, descricao, categoria, preco, imagemUrl, usuarioId: req.usuarioId! },
     });

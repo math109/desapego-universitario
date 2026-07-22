@@ -1,23 +1,30 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-
+import { Eye, EyeOff } from "lucide-react";
+ 
 const API_URL = import.meta.env.VITE_API_URL;
-
+ 
+const inputClasses =
+  "w-full border border-[#E5E0F0] rounded-lg px-4 py-2.5 text-[#1C0F33] placeholder:text-[#A79BC2] outline-none focus:border-[#4C1D95] focus:ring-2 focus:ring-[#4C1D95]/20 transition-colors";
+ 
 export function Cadastro() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ nome: "", email: "", senha: "" });
-  const [erro, setErro] = useState("");
+  const [erros, setErros] = useState<Record<string, string[]>>({});
+  const [erroGeral, setErroGeral] = useState("");
   const [carregando, setCarregando] = useState(false);
-
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+ 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
-
+ 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setErro("");
+    setErroGeral("");
+    setErros({});
     setCarregando(true);
-
+ 
     try {
       const res = await fetch(`${API_URL}/usuarios`, {
         method: "POST",
@@ -25,66 +32,118 @@ export function Cadastro() {
         body: JSON.stringify(form),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        setErro(data.erro || "Erro ao criar conta.");
-        return;
+      const data = await res.json();
+ 
+    if (!res.ok) {
+      if (data.detalhes) {
+        setErros(data.detalhes);
+      } else {
+        setErroGeral(data.erro || "Erro ao criar conta.");
       }
-
+      return;
+    }
+ 
       navigate("/login");
     } catch (err) {
-      setErro("Não foi possível conectar ao servidor.");
+      setErroGeral("Não foi possível conectar ao servidor.");
     } finally {
       setCarregando(false);
     }
   }
-
+ 
   return (
-    <section className="max-w-sm mx-auto py-16 px-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Criar conta</h1>
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          name="nome"
-          placeholder="Nome"
-          value={form.nome}
-          onChange={handleChange}
-          required
-          className="border rounded-lg px-4 py-2"
-        />
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
-          className="border rounded-lg px-4 py-2"
-        />
-        <input
-          name="senha"
-          type="password"
-          placeholder="Senha"
-          value={form.senha}
-          onChange={handleChange}
-          required
-          className="border rounded-lg px-4 py-2"
-        />
-
-        {erro && <p className="text-red-600 text-sm">{erro}</p>}
-
-        <button
-          type="submit"
-          disabled={carregando}
-          className="bg-[#4C1D95] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#2E1065] disabled:opacity-50"
+    <section className="h-full bg-[#F7F5FB] py-16 px-6 flex items-center justify-center">
+      <div className="max-w-sm w-full">
+        <div className="text-center mb-8">
+          <span className="font-mono text-xs uppercase tracking-widest text-[#4C1D95]">
+            Comece por aqui
+          </span>
+          <h1 className="text-2xl font-bold text-[#1C0F33] mt-1">Criar conta</h1>
+        </div>
+ 
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-2xl shadow-lg border border-[#E5E0F0] p-6 flex flex-col gap-5"
         >
-          {carregando ? "Criando..." : "Criar conta"}
-        </button>
-      </form>
+          <div>
+            <label className="block text-xs font-semibold text-[#6B5B8C] uppercase tracking-wide mb-1.5">
+              Nome
+            </label>
+            <input
+              name="nome"
+              placeholder="Seu nome"
+              value={form.nome}
+              onChange={handleChange}
+              required
+              autoComplete="name"
+              className={inputClasses}
+            />
+            {erros.nome && <p className="text-red-600 text-sm">{erros.nome[0]}</p>}
+          </div>
+ 
+          <div>
+            <label className="block text-xs font-semibold text-[#6B5B8C] uppercase tracking-wide mb-1.5">
+              Email
+            </label>
+            <input
+              name="email"
+              type="email"
+              placeholder="voce@aluno.unifor.br"
+              value={form.email}
+              onChange={handleChange}
+              required
+              autoComplete="email"
+              className={inputClasses}
+            />
+            {erros.email && <p className="text-red-600 text-sm">{erros.email[0]}</p>}
+          </div>
+ 
+          <div>
+            <label className="block text-xs font-semibold text-[#6B5B8C] uppercase tracking-wide mb-1.5">
+              Senha
+            </label>
+            <div className="relative">
+            <input
+              name="senha"
+              type={mostrarSenha ? "text" : "password"}
+              placeholder="••••••••"
+              value={form.senha}
+              onChange={handleChange}
+              required
+              autoComplete="new-password"
+              className={inputClasses}
+            />
+            <button
+              type="button"
+              onClick={() => setMostrarSenha(!mostrarSenha)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              tabIndex={-1}
+            >
+              {mostrarSenha ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+            </div>
 
-      <p className="text-sm text-gray-600 mt-4">
-        Já tem conta? <Link to="/login" className="text-[#4C1D95] font-semibold">Entrar</Link>
-      </p>
+            {erros.senha && <p className="text-red-600 text-sm">{erros.senha[0]}</p>}
+          </div>
+ 
+          {erroGeral && <p className="text-[#993C1D] text-sm">{erroGeral}</p>}
+ 
+          <button
+            type="submit"
+            disabled={carregando}
+            className="bg-[#C6F135] text-[#1C0F33] px-6 py-3 rounded-lg font-semibold hover:-translate-y-0.5 transition-transform disabled:opacity-50 disabled:translate-y-0"
+          >
+            {carregando ? "Criando..." : "Criar conta"}
+          </button>
+        </form>
+ 
+        <p className="text-sm text-[#6B5B8C] text-center mt-6">
+          Já tem conta?{" "}
+          <Link to="/login" className="text-[#4C1D95] font-semibold hover:underline">
+            Entrar
+          </Link>
+        </p>
+      </div>
     </section>
   );
 }
